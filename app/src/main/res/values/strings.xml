@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">DETALLES WISSI</string>
+    
+    <!-- General -->
+    <string name="ingresar">Ingresar</string>
+    <string name="ver_productos">Ver Productos</string>
+    <string name="login_admin">Login Administrador</string>
+    <string name="cerrar_sesion">Cerrar Sesión</string>
+    <string name="buscar">Buscar...</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="guardar">Guardar</string>
+    <string name="actualizar">Actualizar</string>
+    <string name="eliminar">Eliminar</string>
+    <string name="agregar_categoria">Agregar Categoría</string>
+    <string name="agregar_producto">Agregar Producto</string>
+    
+    <!-- Login -->
+    <string name="usuario">Usuario</string>
+    <string name="contrasena">Contraseña</string>
+    <string name="ingresar_admin">Ingresar como Administrador</string>
+    <string name="credenciales_invalidas">Credenciales inválidas</string>
+    
+    <!-- Productos -->
+    <string name="nombre">Nombre</string>
+    <string name="codigo">Código</string>
+    <string name="categoria">Categoría</string>
+    <string name="precio">Precio</string>
+    <string name="cantidad">Cantidad</string>
+    <string name="cantidad_disponible">$1 unidad%s disponible%s</string>
+    
+    <!-- Labels -->
+    <string name="detalles_producto">Detalles del Producto</string>
+    <string name="productos_disponibles">Productos Disponibles</string>
+    <string name="categorias">Categorías</string>
+    <string name="productos_categoria">%s - Productos</string>
+</resources>
+
