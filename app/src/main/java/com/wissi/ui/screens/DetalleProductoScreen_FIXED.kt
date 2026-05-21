@@ -17,7 +17,6 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.wissi.R
-import com.wissi.utils.ImageUtils
 import com.wissi.viewmodel.InventoryViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,9 +28,11 @@ fun DetalleProductoScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val producto = uiState.selectedProducto
+    val context = LocalContext.current
 
-    LaunchedEffect(productoId) {
-        if (productoId.isNotEmpty()) {
+    LaunchedEffect(key1 = productoId) {
+        if (productoId.isNotBlank()) {
+            viewModel.clearError()
             viewModel.loadProductoById(productoId)
         }
     }
@@ -40,10 +41,11 @@ fun DetalleProductoScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(producto?.nombre ?: "Detalle producto")
+                    Text(producto?.nombre ?: "Detalle del producto")
                 },
                 navigationIcon = {
                     IconButton(onClick = {
+                        viewModel.clearSelection()
                         navController.popBackStack()
                     }) {
                         Icon(
@@ -54,7 +56,9 @@ fun DetalleProductoScreen(
                 },
                 actions = {
                     IconButton(onClick = {
-                        viewModel.loadProductoById(productoId)
+                        if (productoId.isNotBlank()) {
+                            viewModel.loadProductoById(productoId)
+                        }
                     }) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
@@ -73,7 +77,28 @@ fun DetalleProductoScreen(
             contentAlignment = Alignment.Center
         ) {
 
-            producto?.let {
+            if (!uiState.error.isNullOrBlank()) {
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Text(
+                        text = "Error: ${uiState.error}",
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                }
+
+            } else if (uiState.isLoading) {
+
+                CircularProgressIndicator()
+
+            } else if (producto != null) {
 
                 Column(
                     modifier = Modifier
@@ -83,18 +108,11 @@ fun DetalleProductoScreen(
                 ) {
 
                     AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(
-                                if (it.imagenPath != null) {
-                                    ImageUtils.getImageUri(
-                                        LocalContext.current,
-                                        it.imagenPath
-                                    )
-                                } else it.imagenResId
-                            )
+                        model = ImageRequest.Builder(context)
+                            .data(producto.imagenPath) // 🔥 SOLO URL DIRECTA
                             .crossfade(true)
                             .build(),
-                        contentDescription = it.nombre,
+                        contentDescription = producto.nombre,
                         modifier = Modifier
                             .size(400.dp)
                             .padding(bottom = 24.dp),
@@ -106,23 +124,23 @@ fun DetalleProductoScreen(
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
 
-                            InfoRow("Código", it.codigo)
+                            InfoRow("Código", producto.codigo)
+
                             InfoRow(
                                 "Categoría",
                                 uiState.categorias
-                                    .find { cat -> cat.id == it.categoriaId }
-                                    ?.nombre ?: it.categoriaId
+                                    .find { it.id == producto.categoriaId }
+                                    ?.nombre ?: producto.categoriaId
                             )
-                            InfoRow("Precio", "$${it.precio.toInt()}")
-                            InfoRow("Cantidad", "${it.cantidad} unidades")
+
+                            InfoRow("Precio", "$${producto.precio.toInt()}")
+                            InfoRow("Cantidad", "${producto.cantidad} unidades")
                         }
                     }
                 }
 
-            } ?: if (uiState.isLoading) {
-                CircularProgressIndicator()
             } else {
-                Text("Producto no encontrado")
+                Text("Producto no encontrado o cargando...")
             }
         }
     }

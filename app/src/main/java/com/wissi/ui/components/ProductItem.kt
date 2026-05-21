@@ -53,23 +53,18 @@ fun ProductItem(
         ) {
 
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(
-                        if (producto.imagenPath != null) {
-                            ImageUtils.getImageUri(
-                                LocalContext.current,
-                                producto.imagenPath
-                            )
-                        } else producto.imagenResId
-                    )
-                    .crossfade(true)
-                    .build(),
+                model = producto.imagenPath,
+
                 contentDescription = producto.nombre,
+
                 modifier = Modifier
                     .size(64.dp)
                     .padding(end = 16.dp),
+
                 contentScale = ContentScale.Crop,
+
                 placeholder = painterResource(R.drawable.producto1),
+
                 error = painterResource(R.drawable.producto1)
             )
 

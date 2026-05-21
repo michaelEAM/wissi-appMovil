@@ -25,6 +25,9 @@ import com.wissi.viewmodel.InventoryViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.core.content.FileProvider
+import java.io.File
+import androidx.compose.foundation.layout.Arrangement
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,12 +49,31 @@ fun EditarProductoScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    // Función para crear archivo temporal para cámara
+    fun createImageFile(): File {
+        val storageDir = context.cacheDir
+        return File(storageDir, "camera_${System.currentTimeMillis()}.jpg")
+    }
+
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         selectedUri = uri
         imagePath = null
     }
+
+    // Launcher para cámara
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success: Boolean ->
+        if (success) {
+            // El Uri ya está establecido
+            imagePath = null
+        }
+    }
+
+    // Variable para almacenar el Uri actual de la foto de cámara
+    var currentPhotoUri by remember { mutableStateOf<Uri?>(null) }
 
     // 🔥 CARGAR DATOS CUANDO EL PRODUCTO EXISTE
     LaunchedEffect(producto) {
@@ -93,8 +115,36 @@ fun EditarProductoScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { imagePickerLauncher.launch("image/*") }) {
-            Text("📸 Cambiar Imagen")
+        // BOTONES PARA IMAGEN - Galería y Cámara
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // BOTÓN SELECCIONAR IMAGEN
+            Button(
+                onClick = { imagePickerLauncher.launch("image/*") },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Galería")
+            }
+
+            // BOTÓN TOMAR FOTO
+            Button(
+                onClick = {
+                    val photoFile = createImageFile()
+                    val photoUri = FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.fileprovider",
+                        photoFile
+                    )
+                    currentPhotoUri = photoUri
+                    selectedUri = photoUri
+                    cameraLauncher.launch(photoUri)
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Tomar Foto")
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
